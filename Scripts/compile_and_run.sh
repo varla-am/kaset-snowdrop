@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Reset Kaset: kill running instances, build, package, relaunch, verify.
+# Reset Snowdrop: kill running instances, build, package, relaunch, verify.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_BUNDLE="${ROOT_DIR}/.build/app/Kaset.app"
-APP_PROCESS_PATTERN="Kaset.app/Contents/MacOS/Kaset"
-DEBUG_PROCESS_PATTERN="${ROOT_DIR}/.build/debug/Kaset"
-RELEASE_PROCESS_PATTERN="${ROOT_DIR}/.build/release/Kaset"
+APP_BUNDLE="${ROOT_DIR}/.build/app/Snowdrop.app"
+APP_PROCESS_PATTERN="Snowdrop.app/Contents/MacOS/Snowdrop"
+DEBUG_PROCESS_PATTERN="${ROOT_DIR}/.build/debug/Snowdrop"
+RELEASE_PROCESS_PATTERN="${ROOT_DIR}/.build/release/Snowdrop"
 LOCK_KEY="$(printf '%s' "${ROOT_DIR}" | shasum -a 256 | cut -c1-8)"
-LOCK_DIR="${TMPDIR:-/tmp}/kaset-compile-and-run-${LOCK_KEY}"
+LOCK_DIR="${TMPDIR:-/tmp}/snowdrop-compile-and-run-${LOCK_KEY}"
 LOCK_PID_FILE="${LOCK_DIR}/pid"
 WAIT_FOR_LOCK=0
 RUN_TESTS=0
@@ -63,12 +63,12 @@ acquire_lock() {
 
 trap cleanup EXIT INT TERM
 
-kill_all_kaset() {
+kill_all_snowdrop() {
   is_running() {
     pgrep -f "${APP_PROCESS_PATTERN}" >/dev/null 2>&1 \
       || pgrep -f "${DEBUG_PROCESS_PATTERN}" >/dev/null 2>&1 \
       || pgrep -f "${RELEASE_PROCESS_PATTERN}" >/dev/null 2>&1 \
-      || pgrep -x "Kaset" >/dev/null 2>&1
+      || pgrep -x "Snowdrop" >/dev/null 2>&1
   }
 
   # Phase 1: request termination (give the app time to exit cleanly).
@@ -76,7 +76,7 @@ kill_all_kaset() {
     pkill -f "${APP_PROCESS_PATTERN}" 2>/dev/null || true
     pkill -f "${DEBUG_PROCESS_PATTERN}" 2>/dev/null || true
     pkill -f "${RELEASE_PROCESS_PATTERN}" 2>/dev/null || true
-    pkill -x "Kaset" 2>/dev/null || true
+    pkill -x "Snowdrop" 2>/dev/null || true
     if ! is_running; then
       return 0
     fi
@@ -87,7 +87,7 @@ kill_all_kaset() {
   pkill -9 -f "${APP_PROCESS_PATTERN}" 2>/dev/null || true
   pkill -9 -f "${DEBUG_PROCESS_PATTERN}" 2>/dev/null || true
   pkill -9 -f "${RELEASE_PROCESS_PATTERN}" 2>/dev/null || true
-  pkill -9 -x "Kaset" 2>/dev/null || true
+  pkill -9 -x "Snowdrop" 2>/dev/null || true
 
   for _ in {1..25}; do
     if ! is_running; then
@@ -96,7 +96,7 @@ kill_all_kaset() {
     sleep 0.2
   done
 
-  fail "Failed to kill all Kaset instances."
+  fail "Failed to kill all Snowdrop instances."
 }
 
 # 1) Parse arguments.
@@ -123,9 +123,9 @@ done
 
 acquire_lock
 
-# 2) Kill all running Kaset instances.
-log "==> Killing existing Kaset instances"
-kill_all_kaset
+# 2) Kill all running Snowdrop instances.
+log "==> Killing existing Snowdrop instances"
+kill_all_snowdrop
 
 # 3) Lint (optional).
 if [[ "${RUN_LINT}" == "1" ]]; then
@@ -145,14 +145,14 @@ run_step "package app (${BUILD_CONFIG})" "${ROOT_DIR}/Scripts/build-app.sh" "${B
 log "==> Launching app"
 if ! open "${APP_BUNDLE}"; then
   log "WARN: launch app returned non-zero; falling back to direct binary launch."
-  "${APP_BUNDLE}/Contents/MacOS/Kaset" >/dev/null 2>&1 &
+  "${APP_BUNDLE}/Contents/MacOS/Snowdrop" >/dev/null 2>&1 &
   disown
 fi
 
 # 7) Verify the app stays up for at least a moment.
 for _ in {1..10}; do
   if pgrep -f "${APP_PROCESS_PATTERN}" >/dev/null 2>&1; then
-    log "✅ Kaset is running."
+    log "✅ Snowdrop is running."
     exit 0
   fi
   sleep 0.4

@@ -1,4 +1,4 @@
--- Kaset AppleScript Test Script
+-- Snowdrop AppleScript Test Script
 -- Tests all available AppleScript commands
 
 -- Helper function to display results
@@ -11,10 +11,10 @@ on displayResult(commandName, result)
 end displayResult
 
 -- Main test routine
-tell application "Kaset"
+tell application "Snowdrop"
 
 	log "========================================="
-	log "Kaset AppleScript Commands Test"
+	log "Snowdrop AppleScript Commands Test"
 	log "========================================="
 	log ""
 

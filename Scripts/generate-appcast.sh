@@ -100,7 +100,7 @@ main() {
         echo ""
         echo "Please ensure:"
         echo "  1. Sparkle is added as a Swift Package dependency"
-        echo "  2. Build the project at least once: xcodebuild -scheme Kaset build"
+        echo "  2. Build the project at least once: xcodebuild -scheme Snowdrop build"
         echo ""
         echo "Alternatively, install Sparkle via Homebrew:"
         echo "  brew install sparkle"

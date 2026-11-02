@@ -4,7 +4,7 @@
 //  Standalone API Explorer for YouTube Music and YouTube
 //
 //  A unified tool for exploring public and authenticated YouTube Music and regular YouTube API endpoints.
-//  Reads cookies from the Kaset app's debug cookie export for authenticated requests.
+//  Reads cookies from the Snowdrop app's debug cookie export for authenticated requests.
 //
 //  Usage:
 //    swift run api-explorer [command] [options]
@@ -40,7 +40,7 @@
 //    --mobile-web-key             - Add the resolved web API key to mobile discovery
 //    --mobile-cookie-only         - Omit the authorization header for mobile comparison
 //    --mobile-token-file <path>   - Read a mobile OAuth access token from a private file
-//    --no-auth, --guest            - Force unauthenticated requests even if Kaset cookies exist
+//    --no-auth, --guest            - Force unauthenticated requests even if Snowdrop cookies exist
 //    --follow <index>              - Follow a discover navigation entry; repeat for deeper pages
 //
 //  Examples:
@@ -63,7 +63,7 @@ import Foundation
 
 // MARK: - Configuration
 
-let apiKeyEnvironmentVariable = "KASET_YTMUSIC_API_KEY"
+let apiKeyEnvironmentVariable = "SNOWDROP_YTMUSIC_API_KEY"
 let webClientURL = URL(string: "https://music.youtube.com")!
 nonisolated(unsafe) var cachedAPIKey: String?
 let clientVersion = "1.20231204.01.00"
@@ -331,15 +331,15 @@ func selectedCookieBackupFile(
 
     let legacyCookieFile =
         appSupport
-            .appendingPathComponent("Kaset", isDirectory: true)
+            .appendingPathComponent("Snowdrop", isDirectory: true)
             .appendingPathComponent("cookies.dat")
 
     // Packaged debug builds export cookies.dat into their own container; older
     // debug builds shared the release container.
-    let containerCookieFiles = ["com.sertacozercan.Kaset.debug", "com.sertacozercan.Kaset"].map { bundleID in
+    let containerCookieFiles = ["com.varlaam.Snowdrop.debug", "com.varlaam.Snowdrop"].map { bundleID in
         homeDirectory
             .appendingPathComponent("Library/Containers/\(bundleID)/Data", isDirectory: true)
-            .appendingPathComponent("Library/Application Support/Kaset", isDirectory: true)
+            .appendingPathComponent("Library/Application Support/Snowdrop", isDirectory: true)
             .appendingPathComponent("cookies.dat")
     }
 
@@ -357,7 +357,7 @@ func selectedCookieBackupFile(
     return FileManager.default.fileExists(atPath: legacyCookieFile.path) ? legacyCookieFile : nil
 }
 
-/// Reads cookies from Kaset app's backup file in Application Support.
+/// Reads cookies from Snowdrop app's backup file in Application Support.
 /// This allows the standalone tool to make authenticated API requests.
 func loadCookiesFromAppBackup(from cookieFile: URL? = selectedCookieBackupFile()) -> [HTTPCookie]? {
     guard !forceUnauthenticatedRequests, let cookieFile else { return nil }
@@ -731,12 +731,12 @@ func buildContext(brandAccountId: String? = nil) -> [String: Any] {
     ]
 
     // Add brand account ID if specified.
-    // Diagnostic decoupling: set KASET_PROBE_NO_OBOU=1 to omit the body
+    // Diagnostic decoupling: set SNOWDROP_PROBE_NO_OBOU=1 to omit the body
     // `onBehalfOfUser` field so brand identity can be probed via the
     // `X-Goog-PageId` header ALONE (matching yt-dlp's header-only wire format),
     // isolating whether body-identity is what playback endpoints reject.
     if let brandId = brandAccountId ?? globalBrandAccountId,
-       ProcessInfo.processInfo.environment["KASET_PROBE_NO_OBOU"] != "1"
+       ProcessInfo.processInfo.environment["SNOWDROP_PROBE_NO_OBOU"] != "1"
     {
         userDict["onBehalfOfUser"] = brandId
     }
@@ -2112,7 +2112,7 @@ func exploreBrowse(
 
         if statusCode == 401 || statusCode == 403 {
             print("❌ HTTP \(statusCode) - Authentication required")
-            print("   Run the Kaset app and sign in, then try again.")
+            print("   Run the Snowdrop app and sign in, then try again.")
             return
         }
 
@@ -2200,7 +2200,7 @@ func exploreAction(
 
         if statusCode == 401 || statusCode == 403 {
             print("❌ HTTP \(statusCode) - Authentication required")
-            print("   Run the Kaset app and sign in, then try again.")
+            print("   Run the Snowdrop app and sign in, then try again.")
             return
         }
 
@@ -2747,7 +2747,7 @@ private func auditSearchFilter(
         )
         print(filterSummary.isEmpty ? "  ⚠️ No recognized YouTube Music search shape" : filterSummary)
         if probe.label == "Podcasts" {
-            print("  • Kaset uses a dedicated podcast-show parser for this filter.")
+            print("  • Snowdrop uses a dedicated podcast-show parser for this filter.")
         }
 
         guard let continuationValue = firstSearchContinuationValue(in: filterResponse) else {
@@ -2835,9 +2835,9 @@ func auditSearch(_ query: String, verbose: Bool = false) async {
         }
 
         print("\n🧭 Probing \(probes.count) live filter chip(s): \(probes.map(\.label).joined(separator: ", "))")
-        let unsupportedLabels = probes.map(\.label).filter { !kasetSearchFilterLabels.contains($0) }
+        let unsupportedLabels = probes.map(\.label).filter { !snowdropSearchFilterLabels.contains($0) }
         if !unsupportedLabels.isEmpty {
-            print("   Filter chips without a dedicated Kaset filter: \(unsupportedLabels.joined(separator: ", "))")
+            print("   Filter chips without a dedicated Snowdrop filter: \(unsupportedLabels.joined(separator: ", "))")
         }
 
         for probe in probes {
@@ -2971,9 +2971,9 @@ func checkAuthStatus() {
         print("❌ No cookies found")
         print()
         print("To enable authenticated API access:")
-        print("  1. Run the Kaset app")
+        print("  1. Run the Snowdrop app")
         print("  2. Sign in to YouTube Music")
-        print("  3. The app will save cookies to ~/Library/Application Support/Kaset/")
+        print("  3. The app will save cookies to ~/Library/Application Support/Snowdrop/")
         print("  4. Run this tool again")
         return
     }
@@ -3030,7 +3030,7 @@ func discoverAccounts(verbose: Bool) async {
     print("=======================\n")
 
     guard loadCookiesFromAppBackup() != nil else {
-        print("❌ No cookies found. Please sign in to Kaset first.")
+        print("❌ No cookies found. Please sign in to Snowdrop first.")
         return
     }
 
@@ -3211,7 +3211,7 @@ func probeSigninSwitch(brandId: String, authUserIndex: Int, nextURLString: Strin
         return
     }
     guard let cookies = loadCookiesFromAppBackup(), !cookies.isEmpty else {
-        print("❌ No app cookies found. Sign in to Kaset first.")
+        print("❌ No app cookies found. Sign in to Snowdrop first.")
         return
     }
 
@@ -3299,7 +3299,7 @@ func probeSigninSwitchReal(nextURLString: String) async {
         return
     }
     guard let cookies = loadCookiesFromAppBackup(), !cookies.isEmpty else {
-        print("❌ No app cookies found. Sign in to Kaset first.")
+        print("❌ No app cookies found. Sign in to Snowdrop first.")
         return
     }
 
@@ -3548,7 +3548,7 @@ func discoverBrandAccounts(verbose: Bool) async {
     print("=============================\n")
 
     guard loadCookiesFromAppBackup() != nil else {
-        print("❌ No cookies found. Please sign in to Kaset first.")
+        print("❌ No cookies found. Please sign in to Snowdrop first.")
         return
     }
 
@@ -3913,7 +3913,7 @@ func showHelp() {
         ======================================
 
         A standalone tool for exploring YouTube Music and regular YouTube API endpoints.
-        Supports public and authenticated endpoints (reads cookies from Kaset app).
+        Supports public and authenticated endpoints (reads cookies from Snowdrop app).
 
         Usage:
           swift run api-explorer <command> [options]
@@ -3968,7 +3968,7 @@ func showHelp() {
           --mobile-web-key               Add the resolved web API key to mobile discovery
           --mobile-cookie-only           Omit SAPISIDHASH while retaining cookies for comparison
           --mobile-token-file <path>     Read a mobile OAuth access token from a mode-0600 file
-          --no-auth, --guest             Force signed-out requests even if Kaset cookies exist
+          --no-auth, --guest             Force signed-out requests even if Snowdrop cookies exist
 
         YouTube mode examples:
           # Browse YouTube surfaces (auth used automatically when cookies exist)
@@ -3994,7 +3994,7 @@ func showHelp() {
           swift run api-explorer browse FEmusic_charts
           swift run api-explorer browse FEmusic_moods_and_genres -v
 
-          # Explore authenticated endpoints (requires Kaset sign-in)
+          # Explore authenticated endpoints (requires Snowdrop sign-in)
           swift run api-explorer browse FEmusic_liked_playlists
           swift run api-explorer browse FEmusic_history
           swift run api-explorer browse FEmusic_library_corpus_track_artists
@@ -4018,15 +4018,15 @@ func showHelp() {
           swift run api-explorer continuation <token> next      # next endpoint (for mix queues)
 
           # Safely inspect a saved response without printing raw token values
-          swift run api-explorer analyze-file Tests/KasetTests/Fixtures/example.json
+          swift run api-explorer analyze-file Tests/SnowdropTests/Fixtures/example.json
 
           # Check auth status
           swift run api-explorer auth
 
             Authentication:
-                For authenticated endpoints, sign in to the Kaset app first.
+                For authenticated endpoints, sign in to the Snowdrop app first.
                 Debug builds export auth cookies to:
-                    ~/Library/Application Support/Kaset/cookies.dat
+                    ~/Library/Application Support/Snowdrop/cookies.dat
                 Use --guest/--no-auth to validate signed-out behavior without
                 reading those cookies.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build script to create Kaset.app bundle
+# Build script to create Snowdrop.app bundle
 
 set -euo pipefail
 
@@ -11,10 +11,10 @@ source "$ROOT/version.env"
 
 # Configuration
 CONF=${1:-release}
-SIGNING_MODE=${KASET_SIGNING:-dev}
-SKIP_MAIN_ASSETS=${KASET_SKIP_MAIN_ASSETS:-0}
-APP_NAME="Kaset"
-RELEASE_BUNDLE_ID="com.sertacozercan.Kaset"
+SIGNING_MODE=${SNOWDROP_SIGNING:-dev}
+SKIP_MAIN_ASSETS=${SNOWDROP_SKIP_MAIN_ASSETS:-0}
+APP_NAME="Snowdrop"
+RELEASE_BUNDLE_ID="com.varlaam.Snowdrop"
 # Debug bundles get their own sandbox container, so they never share the release
 # app's WebKit cookie jar, saved sign-in data, or preferences.
 if [[ "$(printf '%s' "$CONF" | tr '[:upper:]' '[:lower:]')" == "debug" ]]; then
@@ -37,7 +37,7 @@ APP_INTENTS_SWIFT_FLAGS=(
   -Xswiftc -Xfrontend -Xswiftc -const-gather-protocols-file
   -Xswiftc -Xfrontend -Xswiftc "$APP_INTENTS_PROTOCOLS"
 )
-APP_SHORTCUTS_CATALOG="$ROOT/Sources/Kaset/Resources/AppShortcuts.xcstrings"
+APP_SHORTCUTS_CATALOG="$ROOT/Sources/Snowdrop/Resources/AppShortcuts.xcstrings"
 
 # Build for host architecture by default; allow overriding via ARCHES (e.g., "arm64 x86_64" for universal).
 ARCH_LIST=( ${ARCHES:-} )
@@ -165,7 +165,7 @@ stage_app_intents_const_values() {
     esac
     cp "$file" "$dest_dir/"
     count=$((count + 1))
-  done < <(find .build \( -false "${search_patterns[@]}" \) -type f 2>/dev/null)
+  done < <(find -H .build \( -false "${search_patterns[@]}" \) -type f 2>/dev/null)
 
   if [[ $count -eq 0 ]]; then
     echo "ERROR: No App Intents const values found for ${APP_NAME} (${arch})." >&2
@@ -269,7 +269,7 @@ for key in sorted(set(catalog) - set(shortcuts)):
     errors.append(f"stale catalog entry: {key}")
 
 if errors:
-    print("ERROR: AppShortcuts.xcstrings is out of sync with KasetShortcuts:", file=sys.stderr)
+    print("ERROR: AppShortcuts.xcstrings is out of sync with SnowdropShortcuts:", file=sys.stderr)
     for error in errors:
         print(f"  {error}", file=sys.stderr)
     sys.exit(1)
@@ -424,10 +424,10 @@ echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
 
 # ── AppleScript definition ───────────────────────────────────────────────────
 
-SDEF_PATH="$ROOT/Sources/Kaset/Resources/Kaset.sdef"
+SDEF_PATH="$ROOT/Sources/Snowdrop/Resources/Snowdrop.sdef"
 if [[ -f "$SDEF_PATH" ]]; then
   echo "📜 Copying AppleScript definition..."
-  cp "$SDEF_PATH" "$APP_BUNDLE/Contents/Resources/Kaset.sdef"
+  cp "$SDEF_PATH" "$APP_BUNDLE/Contents/Resources/Snowdrop.sdef"
 fi
 
 # ── App Intents (Shortcuts, Siri, Spotlight) ─────────────────────────────────
@@ -447,8 +447,8 @@ xcrun xcstringstool compile "$APP_SHORTCUTS_CATALOG" \
 # The top-level Assets.car also needs AccentColor because Info.plist references
 # NSAccentColorName from the main bundle.
 
-ICON_SOURCE="$ROOT/Sources/Kaset/Resources/AppIcon.icon"
-APP_ASSET_CATALOG="$ROOT/Sources/Kaset/Resources/Assets.xcassets"
+ICON_SOURCE="$ROOT/Sources/Snowdrop/Resources/AppIcon.icon"
+APP_ASSET_CATALOG="$ROOT/Sources/Snowdrop/Resources/Assets.xcassets"
 
 # Copy the .icon bundle into the app for Liquid Glass dark/light switching
 if [[ -d "$ICON_SOURCE" ]]; then
@@ -459,10 +459,10 @@ fi
 # Compile AppIcon.icon and AccentColor into Contents/Resources/Assets.car.
 # Xcode 26's actool currently fails on macOS 15 runners while processing
 # Icon Composer assets because it loads newer AVFCore/CoreMedia symbols.
-# UI-test CI can opt out via KASET_SKIP_MAIN_ASSETS=1; release builds should
+# UI-test CI can opt out via SNOWDROP_SKIP_MAIN_ASSETS=1; release builds should
 # keep compiling these assets so AppIcon/AccentColor remain complete.
 if [[ "$SKIP_MAIN_ASSETS" == "1" ]]; then
-  echo "⚠️  Skipping main asset catalog compilation (KASET_SKIP_MAIN_ASSETS=1)."
+  echo "⚠️  Skipping main asset catalog compilation (SNOWDROP_SKIP_MAIN_ASSETS=1)."
 elif [[ -d "$ICON_SOURCE" ]] && [[ -d "$APP_ASSET_CATALOG" ]] && command -v xcrun &>/dev/null; then
   echo "🎨 Compiling main asset catalog..."
   ICON_PARTIAL_PLIST="$BUILD_DIR/AppIconPartialInfo.plist"
@@ -514,7 +514,7 @@ else
 fi
 
 # ── SwiftPM resource bundles ──────────────────────────────────────────────────
-# Kaset_Kaset.bundle contains Assets.xcassets compiled for Bundle.module.
+# Snowdrop_Snowdrop.bundle contains Assets.xcassets compiled for Bundle.module.
 # It is kept separate from the top-level Assets.car produced above.
 
 FIRST_ARCH="${ARCH_LIST[0]}"
@@ -542,7 +542,7 @@ if [[ ${#SWIFTPM_BUNDLES[@]} -gt 0 ]]; then
     fi
   done
 
-  SOURCE_LOCALIZATION_CATALOG="$ROOT/Sources/Kaset/Resources/Localizable.xcstrings"
+  SOURCE_LOCALIZATION_CATALOG="$ROOT/Sources/Snowdrop/Resources/Localizable.xcstrings"
   if [[ -f "$SOURCE_LOCALIZATION_CATALOG" ]]; then
     echo "  → Compiling app localization catalog: $(basename "$SOURCE_LOCALIZATION_CATALOG")"
     xcrun xcstringstool compile "$SOURCE_LOCALIZATION_CATALOG" \
@@ -631,10 +631,10 @@ ${APP_LOCALIZATIONS_PLIST}
     <array>
         <dict>
             <key>CFBundleURLName</key>
-            <string>com.sertacozercan.kaset</string>
+            <string>com.varlaam.snowdrop</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>kaset</string>
+                <string>snowdrop</string>
             </array>
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
@@ -659,18 +659,18 @@ ${APP_LOCALIZATIONS_PLIST}
     <key>NSAppleScriptEnabled</key>
     <true/>
     <key>OSAScriptingDefinition</key>
-    <string>Kaset.sdef</string>
+    <string>Snowdrop.sdef</string>
 
     <!-- Core Audio process tap (Equalizer) - macOS 14.2+ TCC requires these -->
     <key>NSAudioCaptureUsageDescription</key>
-    <string>Kaset processes its own music output through a built-in equalizer. This permission only covers Kaset's own playback — no other app's audio is captured.</string>
+    <string>Snowdrop processes its own music output through a built-in equalizer. This permission only covers Snowdrop's own playback — no other app's audio is captured.</string>
     <key>NSScreenCaptureUsageDescription</key>
-    <string>Kaset taps its own audio output (not the screen) so the built-in equalizer can apply effects to your music. No screen content is recorded.</string>
+    <string>Snowdrop taps its own audio output (not the screen) so the built-in equalizer can apply effects to your music. No screen content is recorded.</string>
 
     <!-- Build Metadata -->
-    <key>KasetBuildTimestamp</key>
+    <key>SnowdropBuildTimestamp</key>
     <string>${BUILD_TIMESTAMP}</string>
-    <key>KasetGitCommit</key>
+    <key>SnowdropGitCommit</key>
     <string>${GIT_COMMIT}</string>
 </dict>
 </plist>
@@ -699,6 +699,8 @@ if [[ "$SIGNING_MODE" == "unsigned" || "$SIGNING_MODE" == "none" ]]; then
 fi
 
 echo "🔏 Signing app..."
+# iCloud Drive adds FinderInfo / fileprovider attributes that codesign rejects.
+xattr -cr "$APP_BUNDLE"
 case "$SIGNING_MODE" in
   adhoc)
     CODESIGN_ARGS=(--force --sign -)
@@ -729,7 +731,7 @@ case "$SIGNING_MODE" in
     CODESIGN_ARGS=(--force --timestamp --options runtime --sign "$CODESIGN_ID")
     ;;
   *)
-    echo "ERROR: Unknown KASET_SIGNING mode: $SIGNING_MODE" >&2
+    echo "ERROR: Unknown SNOWDROP_SIGNING mode: $SIGNING_MODE" >&2
     echo "Expected one of: adhoc, dev, developer-id, unsigned" >&2
     exit 1
     ;;
@@ -759,12 +761,12 @@ if [[ -d "$SPARKLE" ]]; then
   resign "$SPARKLE"
 fi
 
-if [[ -f "$ROOT/Kaset.entitlements" ]]; then
-  ENTITLEMENTS="$ROOT/Kaset.entitlements"
+if [[ -f "$ROOT/Snowdrop.entitlements" ]]; then
+  ENTITLEMENTS="$ROOT/Snowdrop.entitlements"
   if [[ "$BUNDLE_ID" != "$RELEASE_BUNDLE_ID" ]]; then
     # Sparkle's installer services are named after the bundle identifier.
-    ENTITLEMENTS="$BUILD_DIR/Kaset.entitlements"
-    sed "s/${RELEASE_BUNDLE_ID//./\\.}-sp/${BUNDLE_ID}-sp/g" "$ROOT/Kaset.entitlements" > "$ENTITLEMENTS"
+    ENTITLEMENTS="$BUILD_DIR/Snowdrop.entitlements"
+    sed "s/${RELEASE_BUNDLE_ID//./\\.}-sp/${BUNDLE_ID}-sp/g" "$ROOT/Snowdrop.entitlements" > "$ENTITLEMENTS"
   fi
   codesign "${CODESIGN_ARGS[@]}" --entitlements "$ENTITLEMENTS" "$APP_BUNDLE"
 else

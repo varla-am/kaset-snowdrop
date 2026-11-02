@@ -397,7 +397,7 @@ private func askParityContext(
         // Minutes from UTC, UTC-behind negative — the same value YouTube's web client
         // sends (its JS `-Date.getTimezoneOffset()`). Mirrors
         // `InnerTubeSupport.utcOffsetMinutes(for:)`, inlined because APIExplorer cannot
-        // import the Kaset executable target.
+        // import the Snowdrop executable target.
         "utcOffsetMinutes": TimeZone.current.secondsFromGMT() / 60,
     ]
     if profile.usesVisitorData {
@@ -1760,7 +1760,7 @@ func liveTestAskVideoFreeText(
           getSAPISID(from: cookies) != nil,
           buildCookieHeader(from: cookies) != nil
     else {
-        print("❌ No usable Kaset cookie export is available")
+        print("❌ No usable Snowdrop cookie export is available")
         return
     }
 
@@ -2031,7 +2031,7 @@ func liveTestAskVideo(
           getSAPISID(from: cookies) != nil,
           buildCookieHeader(from: cookies) != nil
     else {
-        print("❌ No usable Kaset cookie export is available")
+        print("❌ No usable Snowdrop cookie export is available")
         return
     }
     guard (1 ... 3).contains(freshChatCount) else {

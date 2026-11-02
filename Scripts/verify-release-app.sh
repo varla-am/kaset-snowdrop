@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Verifies the packaged Kaset.app has the release-critical settings that are
+# Verifies the packaged Snowdrop.app has the release-critical settings that are
 # easy to regress when building outside Xcode.
 
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-APP_PATH="$ROOT/.build/app/Kaset.app"
+APP_PATH="$ROOT/.build/app/Snowdrop.app"
 REQUIRE_DEVELOPER_ID=false
-EXPECTED_BUNDLE_ID="com.sertacozercan.Kaset"
+EXPECTED_BUNDLE_ID="com.varlaam.Snowdrop"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<USAGE
-Usage: Scripts/verify-release-app.sh [--require-developer-id] [--bundle-id ID] [path/to/Kaset.app]
+Usage: Scripts/verify-release-app.sh [--require-developer-id] [--bundle-id ID] [path/to/Snowdrop.app]
 
 Checks:
   - Info.plist contains Sparkle's sandboxed installer launcher key
@@ -42,8 +42,8 @@ USAGE
 done
 
 INFO_PLIST="$APP_PATH/Contents/Info.plist"
-ENTITLEMENTS_PLIST=$(mktemp "${TMPDIR:-/tmp}/kaset-entitlements.XXXXXX.plist")
-CODESIGN_DETAILS=$(mktemp "${TMPDIR:-/tmp}/kaset-codesign.XXXXXX.txt")
+ENTITLEMENTS_PLIST=$(mktemp "${TMPDIR:-/tmp}/snowdrop-entitlements.XXXXXX.plist")
+CODESIGN_DETAILS=$(mktemp "${TMPDIR:-/tmp}/snowdrop-codesign.XXXXXX.txt")
 trap 'rm -f "$ENTITLEMENTS_PLIST" "$CODESIGN_DETAILS"' EXIT
 
 fail() {
@@ -114,7 +114,7 @@ if entitlements.get("com.apple.security.app-sandbox") is True:
             + ", ".join(missing)
         )
 else:
-    errors.append("Kaset release app must be sandboxed")
+    errors.append("Snowdrop release app must be sandboxed")
 
 if errors:
     for error in errors:

@@ -1,117 +1,46 @@
-<h1 align="center">Kaset</h1>
-
-<p align="center">A native macOS client for YouTube Music and YouTube, built with Swift and SwiftUI.</p>
-
 <p align="center">
-  <a href="https://trendshift.io/repositories/16570?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-16570"><img src="https://trendshift.io/api/badge/repositories/16570" alt="sozercan/kaset | Trendshift" width="200" height="44"/></a>
+  <img src="Snowdrop-icon.png" alt="Snowdrop" width="128" height="128">
 </p>
 
-<table>
-  <tr>
-    <th>YouTube Music</th>
-    <th>YouTube</th>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshot-ytm.png" alt="Kaset YouTube Music screenshot"></td>
-    <td><img src="docs/screenshot-yt.png" alt="Kaset YouTube screenshot"></td>
-  </tr>
-</table>
+<h1 align="center">Snowdrop</h1>
+<h2 align="center">A minimalistic custom YouTube Music and YouTube client for macOS</h2>
 
-## Features
+> [!CAUTION]
+> This is an unofficial YouTube Music and YouTube client! Google doesn't support it.
 
-### Music & Video
+> [!NOTE]
+> This project is forked from sozercan/kaset
 
-- 🎵 **Native macOS Experience** — Apple Music-style UI with Liquid Glass player bars, clean sidebar navigation, and a source toggle for Music ↔ YouTube
-- 🎧 **YouTube Music Support** — Full playback of DRM-protected YouTube Music content via your existing Premium subscription
-- ▶️ **[YouTube Support](docs/youtube.md)** — Browse regular YouTube recommendations, search, subscriptions, Shorts, Watch Later, history, comments, and video playback with native controls, captions, quality selection, and picture in picture
+<h3 align="center"><b>⭐️ Features</b></h3>
 
-### Playback
+- **🎵 YouTube Music**: Recommendations are organized like in the original YT Music client, in a floating glass sidebar
+- **▶️ YouTube**: Switch to regular YouTube with one button at the bottom of the sidebar. The home page follows the original: topic chips on top and a grid of video cards
+- **📱 Shorts**: A vertical Shorts player with like, dislike, share and next/previous buttons
+- **💽 Floating Player**: Floating overlay that shows what is playing, a song or a YouTube video, and lets you control it
+- **💬 Subtitles**: A YouTube-style CC button in the player bar. Click to toggle, right-click to pick a language
+- **🎨 Themes**: Several color themes, adjustable window transparency and blur
+- **🔧 Other**: Almost all features from Kaset: https://github.com/sozercan/kaset
 
-- 🎚️ **Equalizer** — System-wide 6-band parametric EQ with Spotify-style presets, applied to WebKit playback output
-- 📜 **Lyrics** — View plain and synced lyrics with line-by-line highlighting when timing data is available, plus AI-powered explanations and mood analysis on macOS 26+
-- 📃 **Queue Management** — View, reorder, shuffle, and clear your playback queue
-- 🔀 **Smart Shuffle** — Beyond plain shuffle: blends suggested tracks into the queue based on what you're playing, with cadence and how many are queued ahead configurable in Settings
-- 🔊 **Background Audio** — Music continues playing when the window is closed; stops on quit
-- 🎶 **Track Notifications** — Get notified when a new track starts playing
+<h3 align="center"><b>📟 Requirements</b></h3>
 
-### Library & Discovery
+- **macOS Version**: macOS 15.4 or later (Apple Intelligence features need macOS 26)
+- **Other**: Google Account (signed-in playback)
 
-- 📚 **Library Access** — Browse playlists, liked songs, and subscribed podcasts; create playlists, add songs to playlists, and delete your own playlists
-- 🧭 **Explore** — Discover new releases, charts, and moods & genres
-- 🎙️ **Podcasts** — Browse and listen to podcasts with episode progress tracking
-- 🔍 **Search** — Find songs, albums, artists, playlists, and podcasts
-- 🕓 **History** — Revisit recently played tracks
+<h3 align="center"><b>🔧 Installation</b></h3>
 
-### macOS Integration
+- Download the latest release from Releases
+- Open the `.dmg` file
+- Drag Snowdrop to Applications
+- Gatekeeper will block the app from launching because it's not notarized, bypass it by clicking _Right Click -> Open_ or _System Settings -> Privacy & Security -> Open Anyway_
 
-- 🎛️ **System Integration** — Now Playing in Control Center, media key support, Dock menu controls
-- ✨ **Apple Intelligence** — On-device AI for natural language commands, lyrics explanations, and playlist refinement on macOS 26+
-- ⌨️ **[Keyboard Shortcuts](docs/keyboard-shortcuts.md)** — Full keyboard control for playback, navigation, and more
-- 📳 **Haptic Feedback** — Tactile feedback on Force Touch trackpads for player controls and navigation
-- 📣 **Share** — Share songs, playlists, albums, and artists via the native macOS share sheet
-- 🌍 **Localized** — UI available in 18 languages (Arabic, Chinese (Simplified), Chinese (Traditional), Dutch, English, French, German, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Swedish, Turkish, Ukrainian); change under Settings → General → Language
+<h3 align="center"><b>✏️ Building</b></h3>
 
-### Automation & Extensibility
-
-- 🧩 **[Extensions](docs/extensions.md)** — Load WebKit Web Extensions, including [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) and [SponsorBlock](https://github.com/ajayyy/SponsorBlock)
-- 🔗 **[URL Scheme](docs/url-scheme.md)** — Open songs directly with `kaset://play?v=VIDEO_ID`; app-targeted YouTube watch and `youtu.be` links play in YouTube mode
-- ⚡️ **[Shortcuts, Siri & Spotlight](docs/shortcuts.md)** — Native actions to play music, playlists, and albums, control playback, and rate songs; Siri phrases; Library playlists and albums in Spotlight
-- 🤖 **[AppleScript Support](docs/applescript.md)** — Automate playback with scripts, Raycast, Alfred, and Shortcuts
-
-## Requirements
-
-- macOS 15.4 or later
-- Apple Intelligence features require macOS 26.0 or later
-- [Google](https://accounts.google.com) account for YouTube Music and YouTube personalization
-
-## Installation
-
-### Download
-
-1. Go to the [latest release](https://github.com/sozercan/kaset/releases/latest) page.
-2. Under **Assets**, click the file whose name ends in `.dmg` to download it.
-3. Open the downloaded `.dmg` file from your **Downloads** folder.
-4. In the window that appears, drag the **Kaset** icon onto the **Applications** folder.
-5. Open **Kaset** from your **Applications** folder.
-
-### Opening Kaset for the First Time
-
-Kaset isn't signed or notarized by Apple, so the first time you open it, macOS shows a warning that the app can't be verified. This is expected. Use **one** of the options below to allow it. You only need to do this once.
-
-**Option 1: System Settings (no Terminal needed)**
-
-1. Try to open Kaset once, then close the warning by clicking **Done**.
-2. Open **System Settings** and go to **Privacy & Security**.
-3. Scroll down to the **Security** section and click **Open Anyway** next to Kaset.
-4. Click **Open Anyway** again in the pop-up, then enter your password or use Touch ID.
-
-**Option 2: Terminal**
-
-1. Open **Terminal**: press `⌘ Space`, type `Terminal`, and press Return.
-2. Copy the command below, paste it into the Terminal window, and press Return:
-
-   ```bash
-   xattr -dr com.apple.quarantine /Applications/Kaset.app
-   ```
-
-3. Open Kaset from your **Applications** folder as usual.
-
-### Homebrew
-
-If you already use [Homebrew](https://brew.sh), you can install Kaset with:
-
-```bash
-brew install sozercan/repo/kaset
+```zsh
+git clone https://github.com/varla-am/snowdrop
+cd snowdrop
+xcodebuild -project Snowdrop.xcodeproj -scheme Snowdrop -configuration Release build
 ```
 
-Homebrew handles the security warning for you, so you can skip the steps above.
+<h2 align="center"><b>⚙️ Credits</b></h2>
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, architecture, and coding guidelines.
-
-We welcome AI-assisted contributions! You can submit traditional PRs or **prompt requests** — share the AI prompt that generates your changes, and maintainers can review the intent before running the code. See the [AI-Assisted Contributions](CONTRIBUTING.md#ai-assisted-contributions--prompt-requests) section for details.
-
-## Disclaimer
-
-Kaset is an unofficial application and not affiliated with YouTube or Google Inc. in any way. "YouTube", "YouTube Music" and the "YouTube Logo" are registered trademarks of Google Inc.
+**Snowdrop** is a fork of [Kaset](https://github.com/sozercan/kaset) by sozercan, licensed under the MIT license. See [LICENSE](LICENSE).

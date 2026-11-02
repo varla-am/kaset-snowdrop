@@ -1,68 +1,52 @@
-# Build artifacts
-.build/
-DerivedData/
-__pycache__/
-*.py[cod]
-*.xcuserstate
-*.xccheckout
-*.moved-aside
-*.hmap
-*.ipa
-*.dSYM.zip
-*.dSYM
-*.profraw
-
-# Xcode (auto-generated from Package.swift)
-*.xcodeproj/
-!KasetUITests.xcodeproj/
-*.xcworkspace/
-*.xcuserdata/
-xcuserdata/
-
-# Swift Package Manager
-/.swiftpm
-Packages/
-Package.pins
-Package.resolved
-.netrc
-
-# CocoaPods (if ever used)
-Pods/
-
-# Carthage (if ever used)
-Carthage/Build
-Carthage/Checkouts
-
-# fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
-
-# OS files
+.build
+.build.nosync
 .DS_Store
+*.xcuserstate
+xcuserdata/
+.swiftpm/
+
+# macOS / iCloud
 .AppleDouble
 .LSOverride
-._*
+*.icloud
+*.nosync
+.build 2/
 
-# Thumbnails
-Thumbs.db
+# Build output
+.build/
+.build.nosync/
+build/
+DerivedData/
+*.app
+*.dSYM/
+*.xcarchive
+*.ipa
+*.dmg
 
-# IDE
+# Xcode / SwiftPM user state
+*.xcworkspace/xcuserdata/
+*.moved-aside
+
+# Editors / local tooling
 .idea/
+.vscode/*.log
+.claude/settings.local.json
+.claude/worktrees/
+*.log
 *.swp
-*.swo
 *~
 
-# Environment and secrets
-.env
-.env.local
-*.pem
-*.p12
-*.key
+# iCloud conflict copies ("File 2.swift")
+* 2
+* 2.*
+* 2/
 
-TEMP_*
-.tmp/
-build/
-.codex/environments/environment.toml
-Build
+# AI-agent / contributor boilerplate inherited from Kaset
+CLAUDE.md
+AGENTS.md
+CONTEXT.md
+CONTRIBUTING.md
+ADOPTERS.md
+.agents/
+.claude/
+.vscode/

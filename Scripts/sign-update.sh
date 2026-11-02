@@ -3,7 +3,7 @@
 # sign-update.sh - Signs a release DMG/ZIP for Sparkle distribution
 #
 # Usage:
-#   ./Scripts/sign-update.sh path/to/Kaset.dmg
+#   ./Scripts/sign-update.sh path/to/Snowdrop.dmg
 #
 # Prerequisites:
 #   1. Sparkle must be added as a Swift Package dependency
@@ -111,7 +111,7 @@ main() {
         echo ""
         echo "Please ensure:"
         echo "  1. Sparkle is added as a Swift Package dependency"
-        echo "  2. Build the project at least once: xcodebuild -scheme Kaset build"
+        echo "  2. Build the project at least once: xcodebuild -scheme Snowdrop build"
         echo ""
         echo "Alternatively, install Sparkle via Homebrew:"
         echo "  brew install sparkle"

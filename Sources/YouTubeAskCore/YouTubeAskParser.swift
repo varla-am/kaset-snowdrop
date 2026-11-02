@@ -586,7 +586,7 @@ package enum YouTubeAskParser {
 
     /// Current YouChat chips may carry a local `listMutationCommand` that
     /// inserts the already-visible chip label as the pending user turn and
-    /// scrolls the panel. Kaset performs those UI updates itself and never
+    /// scrolls the panel. Snowdrop performs those UI updates itself and never
     /// executes or preserves this callback. Accept only the exact observed
     /// schema and reject every other command or field.
     private static func isSupportedOnClickDecorator(
