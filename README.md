@@ -7,7 +7,7 @@
 
 > [!CAUTION]
 > This is an unofficial YouTube Music and YouTube client! Google does not support it.\
-> **_Youtube and Youtube Music are trademarks of Google LLC. Snowdrop is not affiliated with, endorsed by or sponsored by Google._**
+> **_YouTube and YouTube Music are trademarks of Google LLC. Snowdrop is not affiliated with, endorsed by or sponsored by Google._**
 
 > [!NOTE]
 > This project is forked from sozercan/kaset
