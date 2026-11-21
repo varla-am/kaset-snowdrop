@@ -405,9 +405,47 @@ extension YouTubeWatchWebView {
                 sendEnded(endedVideo);
             }
 
+            // F7/F9 (previous/next media keys) reach a WebKit-owned Now Playing
+            // session as `previoustrack`/`nexttrack` page actions. YouTube registers
+            // its own handlers only inside playlists, so outside one the keys did
+            // nothing. Own both actions and route them to Snowdrop, which applies
+            // the media-control style and skips/seeks the video. The wrapper keeps
+            // YouTube's later registrations from taking the actions back.
+            function installMediaKeyHandlers() {
+                try {
+                    const ms = navigator.mediaSession;
+                    if (!ms) { return; }
+                    if (!ms.__snowdropWatchSetActionHandlerWrapped) {
+                        const orig = ms.setActionHandler.bind(ms);
+                        ms.setActionHandler = function(type, handler) {
+                            if ((type === 'nexttrack' || type === 'previoustrack')
+                                && !window.__snowdropInstallingMediaKeyHandlers) {
+                                return undefined;
+                            }
+                            return orig(type, handler);
+                        };
+                        ms.__snowdropWatchSetActionHandlerWrapped = true;
+                    }
+                    const post = function(type) {
+                        bridge.postMessage({
+                            type: type,
+                            documentGeneration: window.__snowdropDocumentGeneration
+                        });
+                    };
+                    window.__snowdropInstallingMediaKeyHandlers = true;
+                    try {
+                        ms.setActionHandler('nexttrack', function() { post('REMOTE_NEXT'); });
+                        ms.setActionHandler('previoustrack', function() { post('REMOTE_PREVIOUS'); });
+                    } finally {
+                        window.__snowdropInstallingMediaKeyHandlers = false;
+                    }
+                } catch (e) {}
+            }
+
             function attach() {
                 refreshAdObserver();
                 disableAutonav();
+                installMediaKeyHandlers();
                 const video = videoEl();
                 if (!video) { return false; }
                 const videoId = currentVideoId();
@@ -522,6 +560,35 @@ extension YouTubeWatchWebView {
                 html *, body * { visibility: hidden !important; }
             `;
             document.documentElement.appendChild(style);
+        })();
+        """
+    }
+
+    /// Document-start guard: Space belongs to the native Playback menu shortcut,
+    /// so the page must not also act on it. Without this, YouTube's own handler
+    /// (or a focused play button, which clicks on keyup) toggles the video a
+    /// second time and an unpause bounces straight back to paused. Typing in
+    /// editable fields is left alone.
+    static var spaceKeyGuardScript: String {
+        """
+        (function() {
+            'use strict';
+            if (window.__snowdropSpaceGuard) { return; }
+            window.__snowdropSpaceGuard = true;
+            const isEditable = (el) => {
+                if (!el || !el.tagName) { return false; }
+                const tag = el.tagName.toUpperCase();
+                return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+            };
+            const guard = (event) => {
+                if (event.code !== 'Space' && event.key !== ' ') { return; }
+                if (isEditable(event.target)) { return; }
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            };
+            ['keydown', 'keypress', 'keyup'].forEach((type) => {
+                window.addEventListener(type, guard, true);
+            });
         })();
         """
     }
@@ -1084,6 +1151,78 @@ extension YouTubeWatchWebView {
             try { player.setPlaybackQualityRange('\(level)', '\(level)'); } catch (e) {
                 try { player.setPlaybackQuality('\(level)'); } catch (e2) {}
             }
+            // A paused player doesn't refetch on its own: re-seek to the same spot so the new quality applies.
+            const video = document.querySelector('#movie_player video') || document.querySelector('video');
+            if (video && video.paused) {
+                try { player.seekTo(player.getCurrentTime(), true); } catch (e3) { video.currentTime = video.currentTime; }
+            }
+        })();
+        """
+        self.webView?.evaluateJavaScript(script, completionHandler: nil)
+    }
+
+    /// Sets the playback speed on the video element and the player API.
+    func setPlaybackRate(_ rate: Double) {
+        guard rate.isFinite else { return }
+        let value = min(max(rate, 0.25), 2)
+        let script = """
+        (function() {
+            const player = document.getElementById('movie_player');
+            if (player && typeof player.setPlaybackRate === 'function') {
+                try { player.setPlaybackRate(\(value)); } catch (e) {}
+            }
+            const video = document.querySelector('#movie_player video') || document.querySelector('video');
+            if (video) {
+                video.playbackRate = \(value);
+                // YouTube resets the rate on pause/resume; hold ours until the next change.
+                window.__snowdropRate = \(value);
+                if (!window.__snowdropRateHook) {
+                    window.__snowdropRateHook = true;
+                    video.addEventListener('ratechange', function() {
+                        if (window.__snowdropRate && Math.abs(video.playbackRate - window.__snowdropRate) > 0.001) {
+                            video.playbackRate = window.__snowdropRate;
+                        }
+                    });
+                    video.addEventListener('play', function() {
+                        if (window.__snowdropRate) { video.playbackRate = window.__snowdropRate; }
+                    });
+                }
+            }
+        })();
+        """
+        self.webView?.evaluateJavaScript(script, completionHandler: nil)
+    }
+
+    /// Repeats the video when it reaches the end.
+    func setLoop(_ isOn: Bool) {
+        let script = """
+        (function() {
+            const video = document.querySelector('#movie_player video') || document.querySelector('video');
+            if (video) { video.loop = \(isOn ? "true" : "false"); }
+        })();
+        """
+        self.webView?.evaluateJavaScript(script, completionHandler: nil)
+    }
+
+    /// Loops a segment: when playback passes `end`, jump back to `start`. `nil` clears it.
+    /// One 100 ms timer is installed per page and reads the current segment from `window`.
+    func setSegmentLoop(start: Double?, end: Double?) {
+        let segment: String
+        if let start, let end, start.isFinite, end.isFinite, end > start {
+            segment = "{ a: \(start), b: \(end) }"
+        } else {
+            segment = "null"
+        }
+        let script = """
+        (function() {
+            window.__snowdropSegment = \(segment);
+            if (window.__snowdropSegmentTimer) { return; }
+            window.__snowdropSegmentTimer = setInterval(function() {
+                const seg = window.__snowdropSegment;
+                if (!seg) { return; }
+                const video = document.querySelector('#movie_player video') || document.querySelector('video');
+                if (video && !video.paused && video.currentTime >= seg.b) { video.currentTime = seg.a; }
+            }, 100);
         })();
         """
         self.webView?.evaluateJavaScript(script, completionHandler: nil)
